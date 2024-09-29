@@ -1,6 +1,6 @@
 <!--
     Author: Mark Rice
-    A web page about LOTR
+    A web page that generates LOTR movie quotes
 -->
 
 <!DOCTYPE html>
@@ -8,20 +8,32 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LOTR Info</title>
+    <title>LOTR Movie Quotes</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <h1>LOTR</h1>
-    <div>
-        <p>
-            "One Ring to rule them all, One Ring to find them, 
-            One Ring to bring them all and in the darkness bind them."
-        </p>
-        <select></select>
-        <input type="button" value="Go">
-    </div>
-    <div>
-        <img src="" alt="">
+    <div class="bg">
+        <h1>LOTR Trilogy Quotes</h1>
+        <div class="panel">
+            <p>
+                "One Ring to rule them all, One Ring to find them, 
+                One Ring to bring them all and in the darkness bind them."
+            </p>
+            <input type="button" value="Generate Quote" id="random-quote-button">
+            <div id="random-quote"></div>
+
+            <select id="movies-list"></select>
+            <input type="button" value="Generate Quote From Movie" id="random-movie-quote-button">
+            <div id="random-movie-quote"></div>
+
+            <select id="characters-list"></select>
+            <input type="button" value="Generate Quote From Character" id="random-character-quote-button">
+            <div id="random-character-quote"></div>
+        </div>
+        <div class="panel">
+            <img id="onering-image" alt="">
+        </div>
     </div>
 </body>
 </html>
+<script src="lotr.js"></script>
