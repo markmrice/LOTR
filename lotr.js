@@ -1,8 +1,9 @@
 /*
     Author: Mark Rice
-    This is the JavaScript for my LOTR page
+    This is the JavaScript for my LOTR quotes page
     Allows users to fetch quotes from the LOTR trilogy movies
-
+    You can select random quote from all movies and characters, or
+    specify quotes from a specific movie or specific character.
 */
 
 // Variables:
@@ -12,10 +13,10 @@ const allQuotesListURL = "https://the-one-api.dev/v2/quote";
 const randomQuoteButton = document.getElementById("random-quote-button");
 const randomQuote = document.getElementById("random-quote");
 
-/* 
-    Hardcoding the list of movies, as I only want the main trilogy movies 
-    and to sort them in chronological order. 
-*/ 
+
+// Hardcoding the list of movies, as to only include the individual trilogy movies 
+// and to sort them in chronological order. Otherwise it would populate with
+// The Hobbit movies and the trilogy as a whole which have no quotes available.
 const movies = [
     { id: "5cd95395de30eff6ebccde5b", name: "The Fellowship of the Ring" },
     { id: "5cd95395de30eff6ebccde5c", name: "The Two Towers" },
@@ -27,10 +28,8 @@ const moviesList = document.getElementById("movies-list");
 const randomMovieQuoteButton = document.getElementById("random-movie-quote-button");
 const randomMovieQuote = document.getElementById("random-movie-quote");
 
-/* 
-    Hardcoding the list of characters, to only include major characters with quotes
-    and to sort them in alphabetical order.
-*/
+// Hardcoding the list of characters, as to only include characters with quotes
+// and to sort them in alphabetical order.
 const characters = [
     { id: "5cd99d4bde30eff6ebccfbe6", name: "Aragorn II Elessar" },
     { id: "5cd99d4bde30eff6ebccfc07", name: "Arwen" },
@@ -48,6 +47,7 @@ const characters = [
     { id: "5cd99d4bde30eff6ebccfd0e", name: "Gamling" },
     { id: "5cd99d4bde30eff6ebccfea0", name: "Gandalf" },
     { id: "5cd99d4bde30eff6ebccfd23", name: "Gimli" },
+    { id: "5cd99d4bde30eff6ebccfe9e", name: "Gollum" },
     { id: "5cdbdecb6dc0baeae48cfa96", name: "Gothmog (Lieutenant of Morgul)" },
     { id: "5cd99d4bde30eff6ebccfd32", name: "Grimbold" },
     { id: "5cd99d4bde30eff6ebccfe9d", name: "Gríma Wormtongue" },
@@ -57,6 +57,7 @@ const characters = [
     { id: "5cd99d4bde30eff6ebccfd81", name: "Legolas" },
     { id: "5cd99d4bde30eff6ebccfc7c", name: "Meriadoc Brandybuck" },
     { id: "5cdbdf477ed9587226e7949b", name: "Madril" },
+    { id: "5cdbe49b7ed9587226e794a0", name: "Minor Character" },
     { id: "5cd9d5a0844dc4c55e47afef", name: "Mouth of Sauron" },
     { id: "5cd99d4bde30eff6ebccfe2e", name: "Peregrin Took" },
     { id: "5cd99d4bde30eff6ebccfc8f", name: "Rosie Cotton" },
@@ -65,7 +66,7 @@ const characters = [
     { id: "5cd9d533844dc4c55e47afed", name: "Treebeard" },
     { id: "5cd99d4bde30eff6ebccfe0d", name: "The King of the Dead" },
     { id: "5cd99d4bde30eff6ebccfe19", name: "Théoden" },
-    { id: "5cdbdecb6dc0baeae48cfa5a", name: "Witch-King of Angmar" }
+    { id: "5cd9d576844dc4c55e47afee", name: "Witch-King of Angmar" }
 ];
 
 // Variables to fetch a quote from a specific character from all movies.
@@ -73,8 +74,6 @@ const charactersList = document.getElementById("characters-list");
 const randomCharacterQuoteButton = document.getElementById("random-character-quote-button");
 const randomCharacterQuote = document.getElementById("random-character-quote");
 
-// Variables for caching quotes to reduce API calls.
-let cachedQuotes = {};
 
 // When the page loads, populate the lists..
 window.addEventListener("load", function() {
@@ -104,65 +103,6 @@ function createOption(text, value) {
     return option;
 }
 
-// Fetch cached quotes if available, else fetch from API.
-function getCachedQuote(key, fetchFunction) {
-    return fetchFunction().then(data => {
-        cachedQuotes[key] = data;
-        return data;
-    });
-}
-
-// Retrieve random quote from selected character.
-async function getRandomQuoteByCharacter(characterId) {
-    const url = `https://the-one-api.dev/v2/quote?character=${characterId}`;
-    return fetch(url, {
-        headers: {
-            Authorization: "Bearer DNvMjRjyE4YcedIfWS01"
-        }
-    })
-    .then(response => {
-        if (!response.ok) {
-            throw new Error(`HTTP error! Status: ${response.status}`);
-        }
-        return response.json();
-    })
-    .then(data => {
-        if (data && data.docs && data.docs.length > 0) {
-            const randomIndex = Math.floor(Math.random() * data.docs.length);
-            const selectedQuote = data.docs[randomIndex];
-            return {
-                quote: selectedQuote.dialog,
-                movieName: movies.find(m => m.id === selectedQuote.movie).name, // Get the movie name
-                characterName: characters.find(c => c.id === characterId).name // Get the character name 
-            };
-        } else {
-            throw new Error("No quotes found for this character.");
-        }
-    });
-}
-
-// Show random quote from selected character with debounce and loading indicator.
-let isFetchingCharacter = false;
-randomCharacterQuoteButton.addEventListener("click", function() {
-    if (isFetchingCharacter) return;
-    const selectedCharacterId = charactersList.value;
-    if (selectedCharacterId) {
-        isFetchingCharacter = true;
-        randomCharacterQuote.textContent = "Loading...";
-        getRandomQuoteByCharacter(selectedCharacterId)  // Always fetch new quote
-            .then(data => {
-                randomCharacterQuote.textContent = `"${data.quote}" - ${data.characterName} (${data.movieName})`; // Display quote, character, and movie
-            })
-            .catch(error => {
-                randomCharacterQuote.textContent = "No quote available.";
-                console.error("Error fetching random character quote:", error);
-            })
-            .finally(() => {
-                isFetchingCharacter = false;
-            });
-    }
-});
-
 // Fetch and display a new random quote from all trilogy movies.
 async function getRandomQuote() {
     const url = `${allQuotesListURL}`;
@@ -179,36 +119,38 @@ async function getRandomQuote() {
     })
     .then(data => {
         if (data && data.docs && data.docs.length > 0) {
-            const randomIndex = Math.floor(Math.random() * data.docs.length);
-            const selectedQuote = data.docs[randomIndex];
+            const randomIndex = Math.floor(Math.random() * data.docs.length); // Generate a random quote
+            const selectedQuote = data.docs[randomIndex]; // Assign the random quote
             return {
                 quote: selectedQuote.dialog,
                 movieName: movies.find(m => m.id === selectedQuote.movie).name, // Get the movie name
                 characterName: characters.find(c => c.id === selectedQuote.character).name // Get the character name
             };
+        
         } else {
             throw new Error("No quotes found.");
         }
     });
 }
 
-// Show random quote with debounce and loading indicator.
-let isFetching = false;
+// Show random quote with loading indicator.
 randomQuoteButton.addEventListener("click", function() {
-    if (isFetching) return;
-    isFetching = true;
     randomQuote.textContent = "Loading...";
     getRandomQuote()
         .then(data => {
-            randomQuote.textContent = `"${data.quote}" - ${data.characterName} (${data.movieName})`; // Display the random quote with character and movie
+            // Display the random quote with character and movie
+            randomQuote.textContent = `"${data.quote}" - ${data.characterName} (${data.movieName})`; 
         })
         .catch(error => {
-            randomQuote.textContent = "No quote available.";
-            console.error("Error fetching random quote:", error);
+            // Api is limited to 100 fetches per 10 minutes
+            if (error = "Error: HTTP error! Status: 429"){
+                randomQuote.textContent = "Too many requests, please wait 10 minutes."
+                console.error("Error fetching random character quote:", error);
+            } else {
+            randomCharacterQuote.textContent = "No quote available.";
+            console.error("Error fetching random character quote:", error);
+            }
         })
-        .finally(() => {
-            isFetching = false;
-        });
 });
 
 // Retrieve random quote from selected movie.
@@ -227,12 +169,12 @@ async function getRandomQuoteByMovie(movieId) {
     })
     .then(data => {
         if (data && data.docs && data.docs.length > 0) {
-            const randomIndex = Math.floor(Math.random() * data.docs.length);
-            const selectedQuote = data.docs[randomIndex];
+            const randomIndex = Math.floor(Math.random() * data.docs.length); // Generate a random quote
+            const selectedQuote = data.docs[randomIndex]; // Assign the random quote
             return {
                 quote: selectedQuote.dialog,
-                movieName: movies.find(m => m.id === movieId).name, // Get the movie name from the mapping
-                characterName: characters.find(c => c.id === selectedQuote.character).name // Get the character name from the mapping
+                movieName: movies.find(m => m.id === movieId).name, // Get the movie name
+                characterName: characters.find(c => c.id === selectedQuote.character).name // Get the character name
             };
         } else {
             throw new Error("No quotes found for this movie.");
@@ -240,24 +182,77 @@ async function getRandomQuoteByMovie(movieId) {
     });
 }
 
-// Show random quote from selected movie with debounce and loading indicator.
-let isFetchingMovie = false;
+// Show random quote from selected movie with loading indicator.
 randomMovieQuoteButton.addEventListener("click", function() {
-    if (isFetchingMovie) return;
     const selectedMovieId = moviesList.value;
     if (selectedMovieId) {
-        isFetchingMovie = true;
         randomMovieQuote.textContent = "Loading...";
-        getRandomQuoteByMovie(selectedMovieId) // Always fetch a new quote
+        getRandomQuoteByMovie(selectedMovieId)
             .then(data => {
-                randomMovieQuote.textContent = `"${data.quote}" - ${data.characterName} (${data.movieName})`; // Display the random quote with character and movie
+                // Display the random quote with character and movie
+                randomMovieQuote.textContent = `"${data.quote}" - ${data.characterName} (${data.movieName})`; 
             })
             .catch(error => {
-                randomMovieQuote.textContent = "No quote available.";
-                console.error("Error fetching random movie quote:", error);
+                // Api is limited to 100 fetches per 10 minutes
+                if (error = "Error: HTTP error! Status: 429"){
+                    randomMovieQuote.textContent = "Too many requests, please wait 10 minutes."
+                    console.error("Error fetching random character quote:", error);
+                } else {
+                randomCharacterQuote.textContent = "No quote available.";
+                console.error("Error fetching random character quote:", error);
+                }
             })
-            .finally(() => {
-                isFetchingMovie = false;
-            });
+    }
+});
+
+// Retrieve random quote from selected character.
+async function getRandomQuoteByCharacter(characterId) {
+    const url = `https://the-one-api.dev/v2/quote?character=${characterId}`;
+    return fetch(url, {
+        headers: {
+            Authorization: "Bearer DNvMjRjyE4YcedIfWS01"
+        }
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+        return response.json();
+    })
+    .then(data => {
+        if (data && data.docs && data.docs.length > 0) {
+            const randomIndex = Math.floor(Math.random() * data.docs.length); // Generate a random quote
+            const selectedQuote = data.docs[randomIndex]; // Assign the random quote
+            return {
+                quote: selectedQuote.dialog,
+                movieName: movies.find(m => m.id === selectedQuote.movie).name, // Get the movie name
+                characterName: characters.find(c => c.id === characterId).name // Get the character name 
+            };
+        } else {
+            throw new Error("No quotes found for this character.");
+        }
+    });
+}
+
+// Show random quote from selected character with loading indicator.
+randomCharacterQuoteButton.addEventListener("click", function() {
+    const selectedCharacterId = charactersList.value;
+    if (selectedCharacterId) {
+        randomCharacterQuote.textContent = "Loading...";
+        getRandomQuoteByCharacter(selectedCharacterId) 
+            .then(data => {
+                // Display quote, character, and movie
+                randomCharacterQuote.textContent = `"${data.quote}" - ${data.characterName} (${data.movieName})`; 
+            })
+            .catch(error => {
+                // Api is limited to 100 fetches per 10 minutes
+                if (error = "Error: HTTP error! Status: 429"){
+                    randomCharacterQuote.textContent = "Too many requests, please wait 10 minutes."
+                    console.error("Error fetching random character quote:", error);
+                } else {
+                randomCharacterQuote.textContent = "No quote available.";
+                console.error("Error fetching random character quote:", error);
+                }
+            })
     }
 });
