@@ -15,23 +15,26 @@
     <div class="bg">
         <h1>LOTR Trilogy Quotes</h1>
         <div class="panel">
-            <p>
-                "One Ring to rule them all, One Ring to find them, 
-                One Ring to bring them all and in the darkness bind them."
-            </p>
-            <h4>Click to generate a random quote from all characters in all movies:</h4>
-            <input type="button" value="Generate Quote" id="random-quote-button">
-            <div id="random-quote"></div>
+            <noscript>
+                <p>This page requires JavaScript to function. Please enable JavaScript in your browser settings.</p>
+            </noscript>
+            <h2>
+                Generate quotes from the Lord of the Rings Movie Trilogy
+            </h2>
             
-            <h4>Select a movie to generate a random quote from that movie from all characters:</h4>
-            <select id="movies-list"></select>
-            <input type="button" value="Generate Quote From Movie" id="random-movie-quote-button">
-            <div id="random-movie-quote"></div>
+            <h3>Click to generate a random quote from all characters in all movies:</h3>
+            <input type="button" value="Generate Quote" id="random-quote-button" class="input">
+            <div id="random-quote" aria-live="polite" class="output"></div>
+            
+            <h3>Select a movie to generate a random quote from that movie from all characters:</h3>
+            <select id="movies-list" class="input"></select>
+            <input type="button" value="Generate Quote From Movie" id="random-movie-quote-button" class="input">
+            <div id="random-movie-quote" aria-live="polite" class="output"></div>
 
-            <h4>Select a character to generate a random quote from that character from all movies:</h4>    
-            <select id="characters-list"></select>
-            <input type="button" value="Generate Quote From Character" id="random-character-quote-button">
-            <div id="random-character-quote"></div>
+            <h3>Select a character to generate a random quote from that character from all movies:</h3>    
+            <select id="characters-list" class="input"></select>
+            <input type="button" value="Generate Quote From Character" id="random-character-quote-button" class="input">
+            <div id="random-character-quote" aria-live="polite" class="output"></div>
         </div>
 
     </div>

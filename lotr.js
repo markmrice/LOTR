@@ -126,7 +126,6 @@ async function getRandomQuote() {
                 movieName: movies.find(m => m.id === selectedQuote.movie).name, // Get the movie name
                 characterName: characters.find(c => c.id === selectedQuote.character).name // Get the character name
             };
-        
         } else {
             throw new Error("No quotes found.");
         }
@@ -141,16 +140,7 @@ randomQuoteButton.addEventListener("click", function() {
             // Display the random quote with character and movie
             randomQuote.textContent = `"${data.quote}" - ${data.characterName} (${data.movieName})`; 
         })
-        .catch(error => {
-            // Api is limited to 100 fetches per 10 minutes
-            if (error = "Error: HTTP error! Status: 429"){
-                randomQuote.textContent = "Too many requests, please wait 10 minutes."
-                console.error("Error fetching random character quote:", error);
-            } else {
-            randomCharacterQuote.textContent = "No quote available.";
-            console.error("Error fetching random character quote:", error);
-            }
-        })
+        .catch(error => handleError(error, randomQuote));
 });
 
 // Retrieve random quote from selected movie.
@@ -192,16 +182,7 @@ randomMovieQuoteButton.addEventListener("click", function() {
                 // Display the random quote with character and movie
                 randomMovieQuote.textContent = `"${data.quote}" - ${data.characterName} (${data.movieName})`; 
             })
-            .catch(error => {
-                // Api is limited to 100 fetches per 10 minutes
-                if (error = "Error: HTTP error! Status: 429"){
-                    randomMovieQuote.textContent = "Too many requests, please wait 10 minutes."
-                    console.error("Error fetching random character quote:", error);
-                } else {
-                randomCharacterQuote.textContent = "No quote available.";
-                console.error("Error fetching random character quote:", error);
-                }
-            })
+            .catch(error => handleError(error, randomMovieQuote));
     }
 });
 
@@ -244,15 +225,16 @@ randomCharacterQuoteButton.addEventListener("click", function() {
                 // Display quote, character, and movie
                 randomCharacterQuote.textContent = `"${data.quote}" - ${data.characterName} (${data.movieName})`; 
             })
-            .catch(error => {
-                // Api is limited to 100 fetches per 10 minutes
-                if (error = "Error: HTTP error! Status: 429"){
-                    randomCharacterQuote.textContent = "Too many requests, please wait 10 minutes."
-                    console.error("Error fetching random character quote:", error);
-                } else {
-                randomCharacterQuote.textContent = "No quote available.";
-                console.error("Error fetching random character quote:", error);
-                }
-            })
+            .catch(error => handleError(error, randomCharacterQuote));
     }
 });
+
+function handleError(error, targetElement) {
+    // API requests are limited to 100 per 10 minutes
+    if (error.message === "HTTP error! Status: 429") {
+        targetElement.textContent = "Too many requests, please wait 10 minutes.";
+    } else {
+        targetElement.textContent = "No quote available.";
+    }
+    console.error("Error fetching quote:", error);
+}
